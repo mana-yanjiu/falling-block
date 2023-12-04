@@ -117,6 +117,7 @@
       const 装飾設定 = document.querySelector('style');
       const 実体基本径 = 236;
       const 実体基本規模 = 実体基本径 * 2;
+      const 背景色 = 'rgb(238,238,238)';
       const 線分設定 = 'fill:none;stroke-linecap:round;stroke-linejoin:miter;';
 
       const 実体生成 = (種別, 属性群 = {}, 内包実体 = null) => {
@@ -155,7 +156,7 @@
         const 画像 = [];
 
         画像.push(実体生成('circle', { ...円属性, r: 実体規模, style: `fill:${外円色};` }));
-        画像.push(実体生成('circle', { ...円属性, r: 大輪径, style: `fill:${基本色};stroke:rgb(255,255,255);stroke-width:${大輪幅};` }));
+        画像.push(実体生成('circle', { ...円属性, r: 大輪径, style: `fill:${基本色};stroke:${背景色};stroke-width:${大輪幅};` }));
         Array(5).fill(null).forEach((_, 進捗) => {
           const 角度基本 = Math.PI * (1 + 1 / 5 * 進捗 * 2);
           const 角度先端 = Math.PI * (1 + 1 / 5 * (進捗 * 2 - 1));
@@ -168,7 +169,7 @@
           const 座標尖到 = 座標生成(角度基本, 華径, 座標基本).join(' ');
           const 座標尖先目 = 座標生成(角度基本 - 華型目標幅角度, 華型目標幅距, 座標基本).join(' ');
           const 座標尖末目 = 座標生成(角度基本 + 華型目標幅角度, 華型目標幅距, 座標基本).join(' ');
-          画像.push(実体生成('path', { d: `M ${座標基本.join(' ')} L ${座標先到} C ${座標先目}, ${座標尖先目}, ${座標尖到} C ${座標尖末目}, ${座標末目}, ${座標末到} Z`, style: `fill:rgb(255,255,255);` }));
+          画像.push(実体生成('path', { d: `M ${座標基本.join(' ')} L ${座標先到} C ${座標先目}, ${座標尖先目}, ${座標尖到} C ${座標尖末目}, ${座標末目}, ${座標末到} Z`, style: `fill:${背景色}` }));
           const 座標雄蘂01 = 座標生成(角度基本, 雄蘂距01, 実体中心);
           画像.push(実体生成('path', { d: `M ${実体中心.join(' ')} L ${座標雄蘂01.join(' ')}`, style: `stroke:${基本色};stroke-width:${雄蘂幅01};${線分設定}` }));
           if (拡張) {
@@ -179,7 +180,7 @@
           画像.push(実体生成('circle', { cx: 座標雄蘂01[0], cy: 座標雄蘂01[1], r: 雄蘂径, style: `fill:${基本色};` }));
         });
         画像.push(実体生成('circle', { ...円属性, r: 小径, style: `fill:${基本色};` }));
-        画像.push(実体生成('circle', { ...円属性, r: 小輪径, style: `stroke:rgb(255,255,255);stroke-width:${小輪幅};${線分設定}` }));
+        画像.push(実体生成('circle', { ...円属性, r: 小輪径, style: `stroke:${背景色};stroke-width:${小輪幅};${線分設定}` }));
 
         return 画像.join('');
       };
@@ -188,12 +189,12 @@
         const 円属性 = { cx: 0, cy: 0 };
 
         画像.push(実体生成('circle', { ...円属性, r: 236, style: `fill:rgb(0,67,112);` }));
-        画像.push(実体生成('circle', { ...円属性, r: 214, style: `stroke:rgb(255,255,255);stroke-width:6;${線分設定}` }));
+        画像.push(実体生成('circle', { ...円属性, r: 214, style: `stroke:${背景色};stroke-width:6;${線分設定}` }));
         Array(24).fill(null).forEach((_, 進捗) => {
           const 角度基本 = Math.PI / 12 * 進捗;
           const 角度基本360 = 15 * 進捗;
           const 座標基本 = 座標生成(角度基本, 142);
-          画像.push(実体生成('ellipse', { cx: 座標基本[0], cy: 座標基本[1], rx: 18, ry: 64, transform: `rotate(${角度基本360 * -1}, ${座標基本.join(' ')})`, style: `fill:rgb(255,255,255);` }));
+          画像.push(実体生成('ellipse', { cx: 座標基本[0], cy: 座標基本[1], rx: 18, ry: 64, transform: `rotate(${角度基本360 * -1}, ${座標基本.join(' ')})`, style: `fill:${背景色}` }));
         });
         Array(12).fill(null).forEach((_, 進捗) => {
           const 角度基本 = Math.PI / 12 * 進捗;
@@ -345,8 +346,8 @@
 
       const 装飾_索 = (実体中心, 実体規模, 実体角度, 強調 = false, 要素返却 = false) => {
         const 色 = 強調 ? 'rgb(180,0,4)' : 'rgb(0,0,0)';
-        const 桿画像1 = [[['M', [[16, 73], [-16, 73], [-16, -73], [16, -73]]], ['Z', []]], ['rgb(255,255,255)', 色, 12]];
-        const 桿画像2 = [[['M', [[0, 73], [0, -73]]]], [null, 'rgb(255,255,255)', 20]];
+        const 桿画像1 = [[['M', [[16, 73], [-16, 73], [-16, -73], [16, -73]]], ['Z', []]], [背景色, 色, 12]];
+        const 桿画像2 = [[['M', [[0, 73], [0, -73]]]], [null, 背景色, 20]];
         const 節画像 = [[['M', [[16, 16]]], ['C', [[32, 16], [32, -16], [16, -16]]], ['L', [[-16, -16]]], ['C', [[-32, -16], [-32, 16], [-16, 16]]], ['Z', []]], ['rgb(255,255,255)', 色, 12]];
         const 端画像1 = [[['M', [[16, 68]]], ['C', [[26, 75], [26, 88], [16, 88]]], ['L', [[-16, 88]]], ['C', [[-26, 88], [-26, 75], [-16, 68]]]], [色, 色, 12]];
         const 端画像2 = [端画像1[0].map(([記, 座群]) => [記, 座群.map(([X, Y]) => [X * -1, Y * -1])]), 端画像1[1], 端画像1[2]];
@@ -370,8 +371,8 @@
         const 円座標X = (正負) => Math.sin(実体角度) * 73 / 94 * 実体規模 * 正負 + 実体中心[0];
         const 円座標Y = (正負) => Math.cos(実体角度) * 73 / 94 * 実体規模 * 正負 + 実体中心[1];
         const 円径 = 12 / 94 * 実体規模;
-        画像.push(実体生成('circle', { cx: 円座標X(1), cy: 円座標Y(1), r: 円径, style: 'fill:rgb(255,255,255)' }));
-        画像.push(実体生成('circle', { cx: 円座標X(-1), cy: 円座標Y(-1), r: 円径, style: 'fill:rgb(255,255,255)' }));
+        画像.push(実体生成('circle', { cx: 円座標X(1), cy: 円座標Y(1), r: 円径, style: `fill:${背景色}` }));
+        画像.push(実体生成('circle', { cx: 円座標X(-1), cy: 円座標Y(-1), r: 円径, style: `fill:${背景色}` }));
 
         return 要素返却 ? 画像 : 画像.join('');
       };
@@ -1195,6 +1196,7 @@
       <div id="実績">
         <div>得点：<span id="得点">0</span>点</div>
         <div id="最新評価"></div>
+        <div id="状況"></div>
       </div>
       <div id="格納"></div>
     </div>
@@ -1248,6 +1250,7 @@
       const 格納実体 = document.getElementById('格納');
       const 得点実体 = document.getElementById('得点');
       const 最新評価実体 = document.getElementById('最新評価');
+      const 状況実体 = document.getElementById('状況');
 
       駒設定群.forEach((駒設定) => {
         Array(駒設定.個数).fill(null).forEach((_, 番号) => {
@@ -1300,6 +1303,9 @@
       };
 
       const 準備 = () => {
+        if (待機駒群.length < 4) {
+          throw '駒不足';
+        }
         行動状態.準備状況 = {
           駒群: 待機駒群.splice(0, 4),
           駒形態: Math.floor(Math.random() * 駒形態群.length),
@@ -1325,6 +1331,11 @@
           駒形態: 行動状態.準備状況.駒形態,
           駒位置: [Math.ceil(枠数[0] / 2) - 1, 枠数[1] - 3, 行動状態.準備状況.駒方向],
         };
+        駒位置取得(行動状態.状況, true).forEach(([列, 行]) => {
+          if (累積駒群[行][列]) {
+            throw '衝突';
+          }
+        });
         準備();
         行動状態.状況.駒群.forEach((駒) => {
           枠実体.appendChild(駒.実体);
@@ -1423,21 +1434,27 @@
       };
 
       const 行動 = () => {
-        switch (行動状態.種別) {
-          case '選択':
-            選択();
-            break;
-          case '進行':
-            進行();
-            break;
-          case '演出':
-            演出();
-            break;
+        try {
+          switch (行動状態.種別) {
+            case '選択':
+              選択();
+              break;
+            case '進行':
+              進行();
+              break;
+            case '演出':
+              演出();
+              break;
+          }
+          行動状態.起点 = (new Date()).getTime();
+          行動状態.経過 = 0;
+          行動状態.予約 && clearTimeout(行動状態.予約);
+          行動状態.予約 = setTimeout(行動, 行動状態.期限);
+        } catch (状況) {
+          行動状態.予約 && clearTimeout(行動状態.予約);
+          行動状態.種別 = '停止';
+          状況実体.innerText = 状況;
         }
-        行動状態.起点 = (new Date()).getTime();
-        行動状態.経過 = 0;
-        行動状態.予約 && clearTimeout(行動状態.予約);
-        行動状態.予約 = setTimeout(行動, 行動状態.期限);
       };
 
       const 行動制御 = () => {
@@ -1455,6 +1472,9 @@
       });
 
       document.addEventListener('keydown', (現象) => {
+        if (行動状態.種別 === '停止') {
+          return;
+        }
         switch (現象.code) {
           case 'ArrowLeft':
           case 'ArrowRight':
