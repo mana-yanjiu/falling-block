@@ -13,20 +13,67 @@
       }
       #構成 {
         display: grid;
-        grid-template-columns: 56.2rem 20.6rem auto;
-        grid-template-rows: 20.6rem auto;
         grid-gap: 1rem;
-        height: 64.2rem;
         margin: 1rem;
       }
-      #枠 {
+      body[data-人数="1"] #構成 {
+        grid-template-columns: 56.2rem 20.6rem auto;
+        grid-template-rows: 20.6rem auto;
+        height: 64.2rem;
+      }
+      body[data-人数="2"] #構成 {
+        grid-template-columns: 56.2rem 20.6rem 56.2rem;
+        grid-template-rows: 20.6rem 20.6rem 21rem 1fr;
+        height: 100vh;
+      }
+      #枠1,
+      #枠2 {
         grid-row: 1 / 3;
         position: relative;
         width: 100%;
-        height: 100%;
+        height:  64.2rem;
         border: solid 0.1rem #000;
-        background-color: #004400;
         overflow: hidden;
+      }
+      #格納1,
+      #格納2 {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        overflow-y: hidden;
+        padding: 1rem;
+        border: solid 0.1rem #000;
+        width: 100%;
+        min-height: 3rem;
+      }
+      #枠1,
+      #格納1 {
+        background-color: #004400;
+      }
+      #枠2,
+      #格納2 {
+        background-color: #006688;
+      }
+      body[data-人数="1"] #格納1 {
+        grid-column: 2 / 4;
+        grid-row: 2;
+        height: fit-content;
+      }
+      body[data-人数="2"] #枠1,
+      body[data-人数="2"] #格納1 {
+        grid-column: 1;
+        background-color: #004400;
+      }
+      body[data-人数="2"] #枠2,
+      body[data-人数="2"] #格納2 {
+        grid-column: 3;
+        background-color: #006688;
+      }
+      body[data-人数="2"] #格納1,
+      body[data-人数="2"] #格納2 {
+        grid-row: 4;
+        height: 100%;
       }
       .通知 {
         position: absolute;
@@ -40,42 +87,54 @@
         color: #fff;
         opacity: 0;
       }
-      #準備 {
+      #準備1,
+      #準備2 {
+        grid-column: 2;
         position: relative;
         width: 100%;
         height: 100%;
         border: solid 0.1rem #000;
         background-color: #004400;
       }
+      #準備1 {
+        grid-row: 1;
+        background-color: #004400;
+      }
+      #準備2 {
+        grid-row: 2;
+        background-color: #006688;
+      }
       #実績 {
         display: grid;
-        grid-template-columns: auto 1fr;
         grid-gap: 1rem;
         align-content: start;
         border: solid 0.1rem #000;
         padding: 1rem;
         font-size: 1.4rem;
       }
+      body[data-人数="1"] #実績 {
+        grid-column: 3;
+        grid-row: 1;
+        grid-template-columns: 10rem 1fr;
+      }
+      body[data-人数="2"] #実績 {
+        grid-column: 2;
+        grid-row: 3 / 5;
+        grid-template-columns: 1fr 1fr;
+      }
       #実績 > div {
         display: flex;
         align-items: center;
       }
-      #実績 > div:nth-child(2n-1) {
+      .表題 {
         background-color: #808;
         color: #fff;
         padding: 0 0.5rem;
         height: 2.4rem;
+        justify-content: center;
       }
-      #格納 {
-        grid-column: 2 / 4;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: flex-start;
-        height: fit-content;
-        padding: 1rem;
-        border: solid 0.1rem #000;
-        background-color: #004400;
+      body[data-人数="2"] .表題 {
+        grid-column: 1 / 3;
       }
       .駒 {
         display: inline-block;
@@ -85,8 +144,10 @@
         background-repeat: no-repeat;
         background-position: center;
       }
-      #枠 .駒,
-      #準備 .駒 {
+      #枠1 .駒,
+      #枠2 .駒,
+      #準備1 .駒,
+      #準備2 .駒 {
         position: absolute;
         width: 4rem;
         height: 4rem;
@@ -97,7 +158,8 @@
         border-left: solid 0.2rem #eee;
         background-size: 3.2rem 3.2rem;
       }
-      #格納 .駒 {
+      #格納1 .駒,
+      #格納2 .駒 {
         width: 3rem;
         height: 3rem;
         border-radius: 0.2rem;
@@ -112,6 +174,11 @@
         align-items: center;
         gap: 0.5rem;
       }
+      body[data-人数="2"] .設定,
+      body[data-人数="2"] .得点,
+      body[data-人数="2"] #経過時間・開始 {
+        justify-content: center;
+      }
       .設定 .説明 {
         font-size: 1.2rem;
         cursor: pointer;
@@ -124,26 +191,30 @@
         padding: 0 0.3rem;
         justify-content: space-between;
         align-items: center;
-        background-color: #888;
+        background-color: #444;
       }
       .設定状態 {
         width: 1.8rem;
         height: 1.8rem;
         border-radius: 0.9rem;
-        background-color: #f0f0f0;
+        background-color: #444;
         cursor: pointer;
       }
       .設定[data-値="1"] .設定状態[data-値="1"] {
         background-color: #8f4;
       }
-      .設定[data-値="0"] .設定状態[data-値="1"],
-      .設定[data-値="1"] .設定状態[data-値="0"] {
-        background-color: #888;
+      .設定[data-値="0"] .設定状態[data-値="0"] {
+        background-color: #f0f0f0;
       }
-      #状況 {
-        position: fixed;
-        top: calc(50vh - 8rem);
-        left: calc(50vw - 16rem);
+      .得点::after {
+        content: "点";
+      }
+      #状況1,
+      #状況2 {
+        position: absolute;
+        top: calc(50% - 8rem);
+        left: calc(50% - 16rem);
+        z-index: 100;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -155,7 +226,51 @@
         padding: 4rem;
         font-size: 2.4rem;
       }
-      #状況[data-表示="0"] {
+      #状況1[data-表示="0"],
+      #状況2[data-表示="0"] {
+        display: none;
+      }
+      #進行制御 {
+        display: flex;
+        align-items: center;
+        margin-left: 0.5rem;
+        height: 2.4rem;
+        line-height: 2.4rem;
+        border: solid 0.1rem #000;
+        border-radius: 0.3rem;
+        overflow: hidden;
+      }
+      #進行制御 > div {
+        display: flex;
+        justify-content: center;
+        width: 4rem;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+      body[data-進行="1"] #開始,
+      body[data-進行="0"] #終了 {
+        background-color: #804;
+        color: #ffe8f8;
+      }
+      body[data-進行="0"] #開始,
+      body[data-進行="1"] #終了 {
+        background-color: #ffe8f8;
+        color: #804;
+        cursor: pointer;
+      }
+      body[data-人数="2"] #人数,
+      body[data-人数="2"] #経過時間・開始 {
+        grid-column: 1 / 3;
+      }
+      #人数[data-値="2"] .設定状態[data-値="2"] {
+        background-color: #8f4;
+      }
+      body[data-人数="1"] #枠2,
+      body[data-人数="1"] #格納2,
+      body[data-人数="1"] #準備2,
+      body[data-人数="1"] #状況2,
+      body[data-人数="1"] #整列設定2,
+      body[data-人数="1"] #得点2 {
         display: none;
       }
     </style>
@@ -1229,20 +1344,55 @@
       実体登録('索5赤', 装飾_索5赤);
     </script>
   </head>
-  <body>
+  <body data-人数="1" data-進行="0">
     <div id="構成">
-      <div id="枠">
+      <div id="枠1">
         <div class="通知"></div>
         <div class="通知"></div>
         <div class="通知"></div>
         <div class="通知"></div>
+        <div id="状況1" data-表示="0"></div>
       </div>
-      <div id="準備"></div>
+      <div id="枠2">
+        <div class="通知"></div>
+        <div class="通知"></div>
+        <div class="通知"></div>
+        <div class="通知"></div>
+        <div id="状況2" data-表示="0"></div>
+      </div>
+      <div id="準備1"></div>
+      <div id="準備2"></div>
       <div id="実績">
-        <div>得点</div>
-        <div><span id="得点">0</span>点</div>
-        <div>整列モード</div>
-        <div id="整列設定" data-値="1" class="設定">
+        <div class="表題">モード</div>
+        <div id="人数" data-値="1" class="設定">
+          <div data-値="1" class="説明">ソロ</div>
+          <div class="設定枠">
+            <div class="設定状態" data-値="1"></div>
+            <div class="設定状態" data-値="2"></div>
+          </div>
+          <div data-値="0" class="説明">対戦</div>
+        </div>
+        <div class="表題">経過時間</div>
+        <div id="経過時間・開始">
+          <div id="経過時間">00:00</div>
+          <div id="進行制御">
+            <div id="開始">開始</div>
+            <div id="終了">終了</div>
+          </div>
+        </div>
+        <div class="表題">得点</div>
+        <div id="得点1" class="得点">0</div>
+        <div id="得点2" class="得点">0</div>
+        <div class="表題">整列モード</div>
+        <div id="整列設定1" data-値="1" class="設定">
+          <div data-値="1" class="説明">入</div>
+          <div class="設定枠">
+            <div class="設定状態" data-値="1"></div>
+            <div class="設定状態" data-値="0"></div>
+          </div>
+          <div data-値="0" class="説明">切</div>
+        </div>
+        <div id="整列設定2" data-値="1" class="設定">
           <div data-値="1" class="説明">入</div>
           <div class="設定枠">
             <div class="設定状態" data-値="1"></div>
@@ -1251,8 +1401,8 @@
           <div data-値="0" class="説明">切</div>
         </div>
       </div>
-      <div id="格納"></div>
-      <div id="状況" data-表示="0"></div>
+      <div id="格納1"></div>
+      <div id="格納2"></div>
     </div>
     <script>
       const 枠数 = [14, 16];
@@ -1281,10 +1431,8 @@
         { 種類: '索5赤', 属性: [2, 15], 個数: 1 },
       ];
       const 評価群 = [
-        { 名称: '充填', 判定: () => 1 },
+        () => ['充填', 1],
       ];
-      const 待機駒群 = [];
-      const 累積駒群 = Array(枠数[1]).fill(null).map((_) => Array(枠数[0]).fill(null));
       const 駒形態群 = [
         [[0, 0], [-1, 0], [1, 0], [0, 1]],
         [[0, 0], [-1, 0], [1, 0], [1, 1]],
@@ -1294,71 +1442,108 @@
         [[0, 0], [1, 0], [0, -1], [-1, -1]],
         [[0, 0], [-1, 0], [1, 0], [2, 0]],
       ];
-      const 動作設定 = {
-        整列: true,
-        開示: true,
-      };
       const 駒待機時間 = 1200;
-      const 行動状態 = { 種別: '選択', 状況: {}, 期限: 10, 経過: 0, 再生: false, 予約: null };
-      const 実績 = { 得点: 0 };
+      const 対戦状態群 = Array(2).fill(null).map((_, 対戦主体番号) => ({
+        待機駒群: [],
+        累積駒群: Array(枠数[1]).fill(null).map((_) => Array(枠数[0]).fill(null)),
+        動作設定: { 整列: true, 開示: true },
+        行動状態: { 種別: '選択', 状況: {}, 期限: 10, 経過: 0, 再生: false, 予約: null },
+        実績: { 得点: 0 },
+        枠実体: document.getElementById(`枠${対戦主体番号 + 1}`),
+        準備実体: document.getElementById(`準備${対戦主体番号 + 1}`),
+        格納実体: document.getElementById(`格納${対戦主体番号 + 1}`),
+        得点実体: document.getElementById(`得点${対戦主体番号 + 1}`),
+        状況実体: document.getElementById(`状況${対戦主体番号 + 1}`),
+        通知実体群: document.querySelectorAll(`#枠${対戦主体番号 + 1} .通知`),
+        整列設定実体: document.getElementById(`整列設定${対戦主体番号 + 1}`),
+      }));
+      const 環境状態 = {
+        人数: 1,
+        再生: false,
+        予約: null,
+        開始時刻: (new Date()).getTime(),
+      };
       const 表示実体 = document.querySelector('body');
-      const 枠実体 = document.getElementById('枠');
-      const 準備実体 = document.getElementById('準備');
-      const 格納実体 = document.getElementById('格納');
-      const 得点実体 = document.getElementById('得点');
-      const 状況実体 = document.getElementById('状況');
-      const 通知実体群 = document.querySelectorAll('.通知');
-      const 整列設定実体 = document.getElementById('整列設定');
-      駒設定群.forEach((駒設定) => {
-        Array(駒設定.個数).fill(null).forEach((_, 番号) => {
-          const 駒実体 = document.createElement('div');
-          駒実体.classList.add('駒', 駒設定.種類);
-          待機駒群.splice(Math.floor(Math.random() * 待機駒群.length), 0, {
-            設定: 駒設定,
-            実体: 駒実体,
-          });
-        });
-      });
-      待機駒群.forEach(({ 実体: 駒実体 }) => {
-        格納実体.appendChild(駒実体);
-      })
+      const 人数設定実体 = document.getElementById('人数');
+      const 経過時間実体 = document.getElementById('経過時間');
+      const 開始実体 = document.getElementById('開始');
+      const 終了実体 = document.getElementById('終了');
 
-      const 可動駒描画 = () => {
-        駒位置取得(行動状態.状況).forEach(([X, Y], 番号) => {
+      const 初期化 = () => {
+        対戦状態群.forEach((対戦状態, 対戦主体番号) => {
+          const { 行動状態, 累積駒群, 状況実体, 格納実体, 得点実体 } = 対戦状態;
+          行動状態.予約 && clearTimeout(行動状態.予約);
+          const 待機駒群 = 対戦状態.待機駒群.splice(0);
+          const 行動駒群 = 行動状態.状況?.駒群;
+          const 準備駒群 = 行動状態.準備状況?.駒群;
+          行動駒群?.length && 待機駒群.push(...行動駒群.splice(0));
+          準備駒群?.length && 待機駒群.push(...準備駒群.splice(0));
+          累積駒群.forEach((行累積駒群, 行) => {
+            行累積駒群.forEach((駒, 列) => {
+              if (駒) {
+                待機駒群.push(駒);
+                対戦状態.累積駒群[行][列] = null;
+              }
+            });
+          });
+          Array(待機駒群.length).fill(null).forEach((_, 順) => {
+            const [駒] = 待機駒群.splice(Math.floor(Math.random() * 待機駒群.length), 1);
+            駒.実体.style.top = null;
+            駒.実体.style.left = null;
+            対戦状態.待機駒群.push(駒);
+            格納実体.appendChild(駒.実体);
+          });
+          対戦状態.実績.得点 = 0;
+          対戦状態.行動状態 = { 種別: '選択', 状況: {}, 期限: 10, 経過: 0, 再生: false, 予約: null };
+          状況実体.dataset.表示 = '0';
+          得点実体.innerText = '0';
+        });
+        環境状態.予約 && clearTimeout(環境状態.予約);
+        環境状態.再生 = false;
+        表示実体.dataset.進行 = '0';
+        経過時間実体.innerText = '00:00';
+      };
+
+      const 可動駒描画 = (対戦主体番号) => {
+        const { 行動状態 } = 対戦状態群[対戦主体番号];
+        駒位置取得(行動状態.状況).forEach(([列, 行], 番号) => {
           const 駒 = 行動状態.状況.駒群[番号].実体;
-          駒.style.left = `${(X + 行動状態.状況.駒位置[0]) * 4}rem`;
-          駒.style.top = `${(枠数[1] - Y - 行動状態.状況.駒位置[1] - 1) * 4}rem`;
+          駒.style.left = `${(列 + 行動状態.状況.駒位置[0]) * 4}rem`;
+          駒.style.top = `${(枠数[1] - 行 - 行動状態.状況.駒位置[1] - 1) * 4}rem`;
         });
       };
 
-      const 駒移動 = (方向X, 方向Y) => {
-        const 現行位置X = 行動状態.状況.駒位置[0];
-        const 現行位置Y = 行動状態.状況.駒位置[1];
-        行動状態.状況.駒位置[0] += 方向X;
-        行動状態.状況.駒位置[1] += 方向Y;
-        駒位置取得(行動状態.状況, true).forEach(([X, Y]) => {
-          if (累積駒群[Y]?.[X] !== null) {
-            行動状態.状況.駒位置[0] = 現行位置X;
-            行動状態.状況.駒位置[1] = 現行位置Y;
+      const 駒移動 = (対戦主体番号, 方向列, 方向行) => {
+        const { 行動状態, 累積駒群 } = 対戦状態群[対戦主体番号];
+        const 現行位置列 = 行動状態.状況.駒位置[0];
+        const 現行位置行 = 行動状態.状況.駒位置[1];
+        行動状態.状況.駒位置[0] += 方向列;
+        行動状態.状況.駒位置[1] += 方向行;
+        駒位置取得(行動状態.状況, true).forEach(([列, 行]) => {
+          if (累積駒群[行]?.[列] !== null) {
+            行動状態.状況.駒位置[0] = 現行位置列;
+            行動状態.状況.駒位置[1] = 現行位置行;
             throw ('失敗');
           }
         });
-        可動駒描画();
+        可動駒描画(対戦主体番号);
       };
 
-      const 駒回転 = (方向) => {
+      const 駒回転 = (対戦主体番号, 方向) => {
+        const { 行動状態, 累積駒群 } = 対戦状態群[対戦主体番号];
         const 現行位置 = 行動状態.状況.駒位置[2];
         行動状態.状況.駒位置[2] = (現行位置 + 方向 + 4) % 4;
-        駒位置取得(行動状態.状況, true).forEach(([X, Y]) => {
-          if (累積駒群[Y]?.[X] !== null) {
+        駒位置取得(行動状態.状況, true).forEach(([列, 行]) => {
+          if (累積駒群[行]?.[列] !== null) {
             行動状態.状況.駒位置[2] = 現行位置;
             throw ('限界');
           }
         });
-        可動駒描画();
+        可動駒描画(対戦主体番号);
       };
 
-      const 準備 = () => {
+      const 準備 = (対戦主体番号) => {
+        const { 行動状態, 待機駒群, 準備実体 } = 対戦状態群[対戦主体番号];
         if (待機駒群.length < 4) {
           throw '駒不足';
         }
@@ -1378,8 +1563,9 @@
         });
       };
 
-      const 選択 = () => {
-        !行動状態.準備状況 && 準備();
+      const 選択 = (対戦主体番号) => {
+        const { 行動状態, 累積駒群, 枠実体 } = 対戦状態群[対戦主体番号];
+        !行動状態.準備状況 && 準備(対戦主体番号);
         行動状態.種別 = '進行';
         行動状態.期限 = 駒待機時間;
         行動状態.状況 = {
@@ -1392,22 +1578,23 @@
             throw '衝突';
           }
         });
-        準備();
+        準備(対戦主体番号);
         行動状態.状況.駒群.forEach((駒) => {
           枠実体.appendChild(駒.実体);
         });
-        可動駒描画();
+        可動駒描画(対戦主体番号);
       };
 
-      const 進行 = (人為 = false) => {
+      const 進行 = (対戦主体番号, 人為 = false) => {
+        const { 行動状態, 累積駒群, 動作設定 } = 対戦状態群[対戦主体番号];
         try {
           const 回数 = (人為 ? 行動状態.状況.駒位置[1] : 0) + 1;
           Array(回数).fill(null).forEach(() => {
-            駒移動(0, -1);
+            駒移動(対戦主体番号, 0, -1);
           });
-          可動駒描画();
+          可動駒描画(対戦主体番号);
         } catch (_) {
-          可動駒描画();
+          可動駒描画(対戦主体番号);
           const 駒群 = 行動状態.状況.駒群.splice(0);
           const 行群 = [];
           駒位置取得(行動状態.状況, true).forEach(([列, 行], 番号) => {
@@ -1430,7 +1617,7 @@
             }
           });
           if (完成行群.length) {
-            評価(完成行群);
+            評価(対戦主体番号, 完成行群);
             行動状態.種別 = '演出';
             行動状態.期限 = 5;
           } else {
@@ -1440,27 +1627,30 @@
         }
       };
 
-      const 評価 = (完成行群) => {
+      const 評価 = (対戦主体番号, 完成行群) => {
+        const { 行動状態, 累積駒群, 実績, 通知実体群, 得点実体 } = 対戦状態群[対戦主体番号];
         行動状態.状況 = { 完成行群, 通知実体群: [], 進捗: 0 };
         完成行群.forEach((行, 順番) => {
           const 駒群 = 累積駒群[行];
-          const 評価 = 評価群.reduce((最高評価, 評価設定) => {
-            const 得点 = 評価設定.判定(駒群);
+          const 評価結果 = 評価群.reduce((最高評価, 判定) => {
+            const 判定結果 = 判定(駒群);
+            console.log(判定結果);
 
-            return 得点 > 最高評価[1] ? [評価設定.名称, 得点] : 最高評価;
+            return 判定結果[1] > 最高評価[1] ? 判定結果 : 最高評価;
           }, [null, 0]);
-          実績.得点 += 評価[1];
+          実績.得点 += 評価結果[1];
           得点実体.innerText = 実績.得点;
-          if (評価[1] > 1) {
+          if (評価結果[1] > 1) {
             const 通知実体 = 通知実体群[順番];
-            通知実体.innerText = 評価[0];
+            通知実体.innerText = 評価結果[0];
             通知実体.style.top = `${(枠数[1] - 行 - 1) * 4}rem`;
             行動状態.状況.通知実体群.push(通知実体);
           }
         });
       };
 
-      const 演出 = () => {
+      const 演出 = (対戦主体番号) => {
+        const { 行動状態, 累積駒群, 待機駒群, 格納実体 } = 対戦状態群[対戦主体番号];
         const { 完成行群, 進捗 } = 行動状態.状況;
         const [通知時間, 通知風化時間, 落下時間] = [80, 40, 15];
         if (進捗 < 通知時間) {
@@ -1481,7 +1671,7 @@
                 駒.実体.style.top = null;
                 駒.実体.style.left = null;
                 待機駒群.push(駒);
-                格納.appendChild(駒.実体);
+                格納実体.appendChild(駒.実体);
               });
             });
           }
@@ -1515,23 +1705,24 @@
         ]);
       };
 
-      const 行動 = () => {
+      const 行動 = (対戦主体番号) => {
+        const { 行動状態, 状況実体 } = 対戦状態群[対戦主体番号];
         try {
           switch (行動状態.種別) {
             case '選択':
-              選択();
+              選択(対戦主体番号);
               break;
             case '進行':
-              進行();
+              進行(対戦主体番号);
               break;
             case '演出':
-              演出();
+              演出(対戦主体番号);
               break;
           }
           行動状態.起点 = (new Date()).getTime();
           行動状態.経過 = 0;
           行動状態.予約 && clearTimeout(行動状態.予約);
-          行動状態.予約 = setTimeout(行動, 行動状態.期限);
+          行動状態.予約 = setTimeout(行動, 行動状態.期限, 対戦主体番号);
         } catch (状況) {
           行動状態.予約 && clearTimeout(行動状態.予約);
           行動状態.種別 = '停止';
@@ -1540,59 +1731,146 @@
         }
       };
 
-      const 行動制御 = () => {
+      const 行動制御 = (対戦主体番号) => {
+        const { 行動状態 } = 対戦状態群[対戦主体番号];
         行動状態.予約 && clearTimeout(行動状態.予約);
         行動状態.再生 = !行動状態.再生;
         if (行動状態.再生) {
-          行動状態.予約 = setTimeout(行動, Math.max(行動状態.期限 - 行動状態.経過, 0));
+          行動状態.予約 = setTimeout(行動, Math.max(行動状態.期限 - 行動状態.経過, 0), 対戦主体番号);
         } else {
           行動状態.経過 = (new Date()).getTime() - 行動状態.起点;
         }
       };
 
-      整列設定実体.querySelectorAll('[data-値]').forEach((実体) => {
-        // console.log(実体);
-        実体.addEventListener('click', () => {
-          const 指示 = parseInt(実体.dataset.値);
-          整列設定実体.dataset.値 = 指示;
-          動作設定.整列 = !!指示;
+      対戦状態群.forEach(({ 動作設定, 待機駒群, 格納実体, 整列設定実体 }, 対戦主体番号) => {
+        駒設定群.forEach((駒設定) => {
+          Array(駒設定.個数).fill(null).forEach((_, 番号) => {
+            const 駒実体 = document.createElement('div');
+            駒実体.classList.add('駒', 駒設定.種類);
+            待機駒群.splice(Math.floor(Math.random() * 待機駒群.length), 0, {
+              設定: 駒設定,
+              実体: 駒実体,
+            });
+          });
+        });
+        待機駒群.forEach(({ 実体: 駒実体 }) => {
+          格納実体.appendChild(駒実体);
+        })
+        整列設定実体.querySelectorAll('[data-値]').forEach((実体) => {
+          実体.addEventListener('click', () => {
+            const 指示 = parseInt(実体.dataset.値);
+            整列設定実体.dataset.値 = 指示;
+            動作設定.整列 = !!指示;
+          });
         });
       });
 
-      document.addEventListener('keydown', (現象) => {
-        if (行動状態.種別 === '停止') {
+      const 人数設定 = (人数) => {
+        if (人数 === 環境状態.人数) {
           return;
         }
+        表示実体.dataset.人数 = 人数;
+        人数設定実体.dataset.値 = 人数;
+        環境状態.人数 = 人数;
+        初期化();
+      };
+
+      const 経過時間打刻 = () => {
+        const 経過時間 = Math.floor(((new Date()).getTime() - 環境状態.開始時刻) / 1000);
+        const 経過分 = Math.floor(経過時間 / 60);
+        const 経過秒 = 経過時間 % 60;
+        経過時間実体.innerText = `${経過分.toString().padStart(2, '0')}:${経過秒.toString().padStart(2, '0')}`;
+        環境状態.予約 = setTimeout(経過時間打刻, 200);
+      };
+
+      const 開始 = () => {
+        初期化();
+        Array(環境状態.人数).fill(null).forEach((_, 対戦主体番号) => {
+          行動制御(対戦主体番号);
+        });
+        環境状態.開始時刻 = (new Date()).getTime();
+        経過時間打刻();
+        環境状態.再生 = true;
+        表示実体.dataset.進行 = '1';
+      };
+
+      const 終了 = () => {
+        対戦状態群.forEach((対戦状態, 対戦主体番号) => {
+          if (対戦状態.行動状態.予約) {
+            clearTimeout(対戦状態.行動状態.予約);
+          }
+        });
+        if (環境状態.予約) {
+          clearTimeout(環境状態.予約);
+        }
+        環境状態.再生 = false;
+        表示実体.dataset.進行 = '0';
+      };
+
+      人数設定実体.querySelectorAll('[data-値]').forEach((実体) => {
+        実体.addEventListener('click', () => {
+          const 人数 = parseInt(実体.dataset.値);
+          人数設定(人数);
+        });
+      });
+
+      人数設定実体.querySelectorAll('[data-値]').forEach((実体) => {
+        実体.addEventListener('click', () => {
+          const 人数 = parseInt(実体.dataset.値);
+          人数設定(人数);
+        });
+      });
+
+      開始実体.addEventListener('click', () => {
+        環境状態.再生 || 開始();
+      });
+
+      終了実体.addEventListener('click', () => {
+        環境状態.再生 && 終了();
+      });
+
+      document.addEventListener('keydown', (現象) => {
+        // console.log(現象.code);
+        // if (行動状態.種別 === '停止') {
+        //   return;
+        // }
         switch (現象.code) {
           case 'ArrowLeft':
           case 'ArrowRight':
+          case 'Numpad4':
+          case 'Numpad6':
             try {
-              駒移動({ ArrowLeft: -1, ArrowRight: 1 }[現象.key], 0);
+              駒移動(
+                { ArrowLeft: 0, ArrowRight: 0, Numpad4: 1, Numpad6: 1 }[現象.code],
+                { ArrowLeft: -1, ArrowRight: 1, Numpad4: -1, Numpad6: 1 }[現象.code],
+                0
+              );
             } catch (_) {
             }
             break;
           case 'ArrowUp':
           case 'ArrowDown':
+          case 'Numpad8':
+          case 'Numpad2':
             try {
-              駒回転({ ArrowUp: -1, ArrowDown: 1 }[現象.key]);
+              駒回転(
+                { ArrowUp: 0, ArrowDown: 0, Numpad8: 1, Numpad2: 1 }[現象.code],
+                { ArrowUp: -1, ArrowDown: 1, Numpad8: -1, Numpad2: 1 }[現象.code]
+              );
             } catch (_) {
             }
             break;
           case 'Space':
-            進行(true);
-            行動();
+          case 'Numpad0':
+            進行({ Space: 0, Numpad0: 1 }[現象.code], true);
+            行動({ Space: 0, Numpad0: 1 }[現象.code]);
             break;
           case 'Enter':
-            行動制御();
+          case 'NumpadEnter':
+            行動制御({ Enter: 0, NumpadEnter: 1 }[現象.code]);
             break;
         }
       });
-
-      評価群.push({ 名称: '鳥が三羽いる', 判定: (駒群) => {
-        const 鳥群 = 駒群.filter(({ 設定 }) => 設定.属性[0] === 2 && 設定.属性[1] === 0);
-
-        return 鳥群.length >= 3 ? 100 : 0;
-      } });
 
       const 再帰判定 = (確定属性群 = [], 未確定属性群 = [], 構築属性群 = [[], []]) => {
         const 主属性 = 未確定属性群.shift();
@@ -1629,16 +1907,17 @@
           }
         }
       };
-      評価群.push({ 名称: '門前清自摸和', 判定: (駒群) => {
+
+      評価群.push((駒群) => {
         const 駒属性群 = 駒群
           .map((駒) => [駒.設定.属性[0], 駒.設定.属性[1] % 10])
           .sort((属1, 属2) => 属1[0] * 10 + 属1[1] - 属2[0] * 10 - 属2[1]);
         const 確定属性群 = [];
         再帰判定(確定属性群, 駒属性群);
 
-        return 確定属性群.length ? 1000 : 0;
-      } });
-      評価群.push({ 名称: '七対子', 判定: (駒群) => {
+        return 確定属性群.length ? ['門前清自摸和', 1000] : [null, 0];
+      });
+      評価群.push((駒群) => {
         try {
           駒群
             .map((駒) => 駒.設定.属性[0] * 10 + (駒.設定.属性[1] % 10))
@@ -1651,13 +1930,29 @@
               return 属2;
             });
         } catch (_) {
-          return 0;
+          return [null, 0];
         }
 
-        return 1000;
-      } });
+        return ['七対子', 1000];
+      });
+      評価群.push((駒群) => {
+        const 鳥群 = 駒群.filter(({ 設定 }) => 設定.属性[0] === 2 && 設定.属性[1] === 1);
 
-      行動制御();
+        return (
+          鳥群.length === 4 ? ['鳥が四羽いる', 50] :
+          鳥群.length === 3 ? ['鳥が三羽いる', 20] : [null, 0]
+        );
+      });
+      評価群.push((駒群) => {
+        const 華群 = 駒群.filter(({ 設定 }) => 設定.属性[0] === 5);
+
+        return 華群.length === 4 ? ['花が団子', 100] : [null, 0];
+      });
+      評価群.push((駒群) => {
+        const 華群 = 駒群.filter(({ 設定 }) => 設定.属性[0] === 6);
+
+        return 華群.length === 4 ? ['松尾芭蕉', 100] : [null, 0];
+      });
     </script>
   </body>
 </html>
