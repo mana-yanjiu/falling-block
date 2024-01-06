@@ -179,6 +179,49 @@
       body[data-人数="2"] #経過時間・開始 {
         justify-content: center;
       }
+      #時間枠 {
+        position: relative;
+        line-height: 2.4rem;
+        font-size: 1.4rem;
+      }
+      #経過時間 {
+        text-align: center;
+        width: 6rem;
+        height: 2.4rem;
+        border: solid 0.1rem #000;
+        border-right: none;
+        border-radius: 0.3rem 0 0 0.3rem;
+        color: #fff;
+      }
+      body[data-進行="0"] #経過時間 {
+        background-color: #000;
+        cursor: pointer;
+      }
+      body[data-進行="1"] #経過時間 {
+        background-color: #590;
+      }
+      #時間枠 ul {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6rem;
+        border: solid 0.1rem #000;
+        border-radius: 0.3rem;
+        text-align: center;
+        background-color: #fff;
+        list-style: none;
+        overflow: hidden;
+        z-index: 101;
+      }
+      #時間枠 ul:not([data-選択="1"]) {
+        display: none;
+      }
+      #時間枠 li {
+        cursor: pointer;
+      }
+      #時間枠 li:hover {
+        background-color: #eee;
+      }
       .設定 .説明 {
         font-size: 1.2rem;
         cursor: pointer;
@@ -220,7 +263,7 @@
         align-items: center;
         width: 32rem;
         height: 16rem;
-        background-color: #fff;
+        background-color: #fffc;
         border: solid 0.1rem #000;
         border-radius: 2rem;
         padding: 4rem;
@@ -233,11 +276,11 @@
       #進行制御 {
         display: flex;
         align-items: center;
-        margin-left: 0.5rem;
+        margin-left: -0.1rem;
         height: 2.4rem;
         line-height: 2.4rem;
         border: solid 0.1rem #000;
-        border-radius: 0.3rem;
+        border-radius: 0 0.3rem 0.3rem 0;
         overflow: hidden;
       }
       #進行制御 > div {
@@ -249,13 +292,13 @@
       }
       body[data-進行="1"] #開始,
       body[data-進行="0"] #終了 {
-        background-color: #804;
-        color: #ffe8f8;
+        background-color: #060;
+        color: #f4fff4;
       }
       body[data-進行="0"] #開始,
       body[data-進行="1"] #終了 {
-        background-color: #ffe8f8;
-        color: #804;
+        background-color: #f4fff4;
+        color: #060;
         cursor: pointer;
       }
       body[data-人数="2"] #人数,
@@ -271,6 +314,17 @@
       body[data-人数="1"] #状況2,
       body[data-人数="1"] #整列設定2,
       body[data-人数="1"] #得点2 {
+        display: none;
+      }
+      #操作制限 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 100;
+      }
+      #操作制限:not([data-表示="1"]) {
         display: none;
       }
     </style>
@@ -1370,11 +1424,21 @@
             <div class="設定状態" data-値="1"></div>
             <div class="設定状態" data-値="2"></div>
           </div>
-          <div data-値="0" class="説明">対戦</div>
+          <div data-値="2" class="説明">対戦</div>
         </div>
         <div class="表題">経過時間</div>
         <div id="経過時間・開始">
-          <div id="経過時間">00:00</div>
+          <div id="時間枠">
+            <div id="経過時間">00:00</div>
+            <ul id="時間指定">
+              <li data-値="0">無制限</li>
+              <li data-値="60">01:00</li>
+              <li data-値="120">02:00</li>
+              <li data-値="180">03:00</li>
+              <li data-値="300">05:00</li>
+              <li data-値="600">10:00</li>
+            </ul>
+          </div>
           <div id="進行制御">
             <div id="開始">開始</div>
             <div id="終了">終了</div>
@@ -1404,6 +1468,7 @@
       <div id="格納1"></div>
       <div id="格納2"></div>
     </div>
+    <div id="操作制限"></div>
     <script>
       const 枠数 = [14, 16];
       const 枠 = Array(枠数[0]).fill(Array(枠数[1]).fill(null));
@@ -1461,13 +1526,19 @@
         人数: 1,
         再生: false,
         予約: null,
+        制限時間: 0,
         開始時刻: (new Date()).getTime(),
+        目標時刻: 0,
       };
       const 表示実体 = document.querySelector('body');
       const 人数設定実体 = document.getElementById('人数');
       const 経過時間実体 = document.getElementById('経過時間');
+      const 経過時間表題実体 = document.getElementById('経過時間・開始').previousElementSibling;
+      const 時間指定実体 = document.getElementById('時間指定');
+      const 時間指定要素実体群 = 時間指定実体.querySelectorAll('li');
       const 開始実体 = document.getElementById('開始');
       const 終了実体 = document.getElementById('終了');
+      const 操作制限実体 = document.getElementById('操作制限');
 
       const 初期化 = () => {
         対戦状態群.forEach((対戦状態, 対戦主体番号) => {
@@ -1501,7 +1572,14 @@
         環境状態.予約 && clearTimeout(環境状態.予約);
         環境状態.再生 = false;
         表示実体.dataset.進行 = '0';
-        経過時間実体.innerText = '00:00';
+        if (環境状態.制限時間) {
+          const 分 = Math.floor(環境状態.制限時間 / 60);
+          経過時間実体.innerText = `${分.toString().padStart(2, '0')}:00`;
+          経過時間表題実体.innerText = '残り時間';
+        } else {
+          経過時間実体.innerText = '00:00';
+          経過時間表題実体.innerText = '経過時間';
+        }
       };
 
       const 可動駒描画 = (対戦主体番号) => {
@@ -1634,7 +1712,6 @@
           const 駒群 = 累積駒群[行];
           const 評価結果 = 評価群.reduce((最高評価, 判定) => {
             const 判定結果 = 判定(駒群);
-            console.log(判定結果);
 
             return 判定結果[1] > 最高評価[1] ? 判定結果 : 最高評価;
           }, [null, 0]);
@@ -1724,21 +1801,28 @@
           行動状態.予約 && clearTimeout(行動状態.予約);
           行動状態.予約 = setTimeout(行動, 行動状態.期限, 対戦主体番号);
         } catch (状況) {
-          行動状態.予約 && clearTimeout(行動状態.予約);
-          行動状態.種別 = '停止';
+          終了();
           状況実体.innerText = 状況;
           状況実体.dataset.表示 = '1';
+          if (環境状態.人数 === 2) {
+            const { 状況実体: 対峙状況実体 } = 対戦状態群[1 - 対戦主体番号];
+            対峙状況実体.innerText = '判定勝利';
+            対峙状況実体.dataset.表示 = '1';
+          }
         }
       };
 
       const 行動制御 = (対戦主体番号) => {
-        const { 行動状態 } = 対戦状態群[対戦主体番号];
+        const { 行動状態, 状況実体 } = 対戦状態群[対戦主体番号];
         行動状態.予約 && clearTimeout(行動状態.予約);
         行動状態.再生 = !行動状態.再生;
         if (行動状態.再生) {
           行動状態.予約 = setTimeout(行動, Math.max(行動状態.期限 - 行動状態.経過, 0), 対戦主体番号);
+          状況実体.dataset.表示 = '0';
         } else {
           行動状態.経過 = (new Date()).getTime() - 行動状態.起点;
+          状況実体.innerText = '一旦停止';
+          状況実体.dataset.表示 = '1';
         }
       };
 
@@ -1776,10 +1860,22 @@
       };
 
       const 経過時間打刻 = () => {
-        const 経過時間 = Math.floor(((new Date()).getTime() - 環境状態.開始時刻) / 1000);
-        const 経過分 = Math.floor(経過時間 / 60);
-        const 経過秒 = 経過時間 % 60;
-        経過時間実体.innerText = `${経過分.toString().padStart(2, '0')}:${経過秒.toString().padStart(2, '0')}`;
+        if (環境状態.目標時刻) {
+          const 残時間 = Math.ceil((環境状態.目標時刻 - (new Date()).getTime()) / 1000);
+          const 残分 = Math.floor(残時間 / 60);
+          const 残秒 = 残時間 % 60;
+          経過時間実体.innerText = `${残分.toString().padStart(2, '0')}:${残秒.toString().padStart(2, '0')}`;
+          if (残時間 <= 0) {
+            満了();
+
+            return;
+          }
+        } else {
+          const 経過時間 = Math.floor(((new Date()).getTime() - 環境状態.開始時刻) / 1000);
+          const 経過分 = Math.floor(経過時間 / 60);
+          const 経過秒 = 経過時間 % 60;
+          経過時間実体.innerText = `${経過分.toString().padStart(2, '0')}:${経過秒.toString().padStart(2, '0')}`;
+        }
         環境状態.予約 = setTimeout(経過時間打刻, 200);
       };
 
@@ -1789,6 +1885,7 @@
           行動制御(対戦主体番号);
         });
         環境状態.開始時刻 = (new Date()).getTime();
+        環境状態.目標時刻 = 環境状態.制限時間 ? 環境状態.開始時刻 + 環境状態.制限時間 * 1000 : 0;
         経過時間打刻();
         環境状態.再生 = true;
         表示実体.dataset.進行 = '1';
@@ -1805,6 +1902,23 @@
         }
         環境状態.再生 = false;
         表示実体.dataset.進行 = '0';
+      };
+
+      const 満了 = () => {
+        終了();
+        Array(環境状態.人数).fill(null).forEach((_, 対戦主体番号) => {
+          const { 実績, 状況実体 } = 対戦状態群[対戦主体番号];
+          if (環境状態.人数 === 2) {
+            const 対峙対戦状態 = 対戦状態群[1 - 対戦主体番号];
+            const 点数差 = 実績.得点 - 対峙対戦状態.実績.得点;
+            状況実体.innerText =
+              点数差 > 0 ? '良かったです。' :
+              点数差 < 0 ? '残念です。' : '同点ですね。';
+          } else {
+            状況実体.innerText = '終了しました。';
+          }
+          状況実体.dataset.表示 = '1';
+        });
       };
 
       人数設定実体.querySelectorAll('[data-値]').forEach((実体) => {
@@ -1829,41 +1943,73 @@
         環境状態.再生 && 終了();
       });
 
+      経過時間実体.addEventListener('click', () => {
+        if (!環境状態.再生) {
+          時間指定実体.dataset.選択 = '1';
+          操作制限実体.dataset.表示 = '1';
+        }
+      });
+
+      時間指定要素実体群.forEach((実体) => {
+        const 制限時間 = parseInt(実体.dataset.値);
+        実体.addEventListener('click', () => {
+          環境状態.制限時間 = 制限時間;
+          if (制限時間) {
+            const 分 = Math.floor(制限時間 / 60);
+            経過時間実体.innerText = `${分.toString().padStart(2, '0')}:00`;
+            経過時間表題実体.innerText = '残り時間';
+          } else {
+            経過時間実体.innerText = '00:00';
+            経過時間表題実体.innerText = '経過時間';
+          }
+          時間指定実体.dataset.選択 = '0';
+          操作制限実体.dataset.表示 = '0';
+        });
+      });
+
+      操作制限実体.addEventListener('click', () => {
+        if (!環境状態.再生) {
+          時間指定実体.dataset.選択 = '0';
+          操作制限実体.dataset.表示 = '0';
+        }
+      });
+
       document.addEventListener('keydown', (現象) => {
-        // console.log(現象.code);
-        // if (行動状態.種別 === '停止') {
-        //   return;
-        // }
+        if (!環境状態.再生) {
+          return;
+        }
         switch (現象.code) {
           case 'ArrowLeft':
           case 'ArrowRight':
           case 'Numpad4':
           case 'Numpad6':
-            try {
-              駒移動(
-                { ArrowLeft: 0, ArrowRight: 0, Numpad4: 1, Numpad6: 1 }[現象.code],
-                { ArrowLeft: -1, ArrowRight: 1, Numpad4: -1, Numpad6: 1 }[現象.code],
-                0
-              );
-            } catch (_) {
+            const 移動対戦主体番号 = { ArrowLeft: 0, ArrowRight: 0, Numpad4: 1, Numpad6: 1 }[現象.code];
+            if (対戦状態群[移動対戦主体番号].行動状態.再生) {
+              try {
+                駒移動( 移動対戦主体番号, { ArrowLeft: -1, ArrowRight: 1, Numpad4: -1, Numpad6: 1 }[現象.code], 0);
+              } catch (_) {
+              }
             }
             break;
           case 'ArrowUp':
           case 'ArrowDown':
           case 'Numpad8':
           case 'Numpad2':
-            try {
-              駒回転(
-                { ArrowUp: 0, ArrowDown: 0, Numpad8: 1, Numpad2: 1 }[現象.code],
-                { ArrowUp: -1, ArrowDown: 1, Numpad8: -1, Numpad2: 1 }[現象.code]
-              );
-            } catch (_) {
+            const 回転対戦主体番号 = { ArrowUp: 0, ArrowDown: 0, Numpad8: 1, Numpad2: 1 }[現象.code];
+            if (対戦状態群[回転対戦主体番号].行動状態.再生) {
+              try {
+                駒回転(回転対戦主体番号, { ArrowUp: -1, ArrowDown: 1, Numpad8: -1, Numpad2: 1 }[現象.code]);
+              } catch (_) {
+              }
             }
             break;
           case 'Space':
           case 'Numpad0':
-            進行({ Space: 0, Numpad0: 1 }[現象.code], true);
-            行動({ Space: 0, Numpad0: 1 }[現象.code]);
+            const 進行対戦主体番号 = { Space: 0, Numpad0: 1 }[現象.code];
+            if (対戦状態群[進行対戦主体番号].行動状態.再生) {
+              進行(進行対戦主体番号, true);
+              行動(進行対戦主体番号);
+            }
             break;
           case 'Enter':
           case 'NumpadEnter':
